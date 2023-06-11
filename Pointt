@@ -1,0 +1,40 @@
+#include <memory>
+
+int main() {
+
+    // --- std::unique_ptr ---
+    // Owns and manages another object, and deletes it when the unique_ptr goes out of scope.
+    // Cannot be copied, only moved.
+    std::unique_ptr<int> uniquePtr1(new int(10));        // Traditional way
+    auto uniquePtr2 = std::make_unique<int>(10);         // Preferred way (C++14 and above)
+
+    // Common operations
+    int value = *uniquePtr2;                             // Dereferencing
+    uniquePtr2.reset();                                  // Releases the object (if any) and makes it empty
+    uniquePtr1.swap(uniquePtr2);                         // Swaps the managed objects between two unique_ptrs
+
+
+    // --- std::shared_ptr ---
+    // Can have multiple shared_ptrs owning the same object.
+    // The object will be deleted when the last one is destroyed (reference counting).
+    std::shared_ptr<int> sharedPtr1(new int(20));        // Traditional way, not recommended
+    auto sharedPtr2 = std::make_shared<int>(20);         // Preferred way
+
+    // Common operations
+    value = *sharedPtr2;                                 // Dereferencing
+    size_t count = sharedPtr2.use_count();               // Returns the number of shared_ptrs pointing to the object
+    sharedPtr2.reset();                                  // Decreases the reference count, deletes if this was the last one
+    sharedPtr1.swap(sharedPtr2);                         // Swaps the managed objects between two shared_ptrs
+
+
+    // --- std::weak_ptr ---
+    // Points to an object managed by shared_ptr, but doesn’t increase the reference count.
+    // Useful to break circular references in complex data structures.
+    std::weak_ptr<int> weakPtr1 = sharedPtr1;            // Must be constructed from a shared_ptr
+
+    // Common operations
+    auto lockedSharedPtr = weakPtr1.lock();              // Returns a shared_ptr if the object still exists, otherwise an empty shared_ptr
+    bool isExpired = weakPtr1.expired();                 // Returns true if the object has been deleted
+
+    return 0;
+}
