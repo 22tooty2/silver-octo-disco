@@ -1,0 +1,101 @@
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+
+// Connecting to MongoDB
+mongoose.connect('mongodb://localhost/mydb', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+// Defining a Schema
+const userSchema = new Schema({
+    name: String,
+    age: Number,
+    email: String
+});
+
+// Creating a Model
+const User = mongoose.model('User', userSchema);
+
+// Creating and Saving a Document
+const newUser = new User({
+    name: 'John Doe',
+    age: 30,
+    email: 'john.doe@example.com'
+});
+
+newUser.save((err, document) => {
+    if (err) return console.error(err);
+    console.log('Document saved:', document);
+});
+
+// Querying Documents
+User.find((err, users) => {
+    if (err) return console.error(err);
+    console.log(users);
+});
+
+// Updating Documents
+User.findOneAndUpdate({ name: 'John Doe' }, { age: 31 }, { new: true }, (err, user) => {
+    if (err) return console.error(err);
+    console.log(user);
+});
+
+// Deleting Documents
+User.findOneAndDelete({ name: 'John Doe' }, (err) => {
+    if (err) return console.error(err);
+    console.log('User deleted');
+});
+
+// Middleware
+userSchema.pre('save', function(next) {
+    // Do something before saving the user
+    next();
+});
+
+// Error Handling
+User.find((err, users) => {
+    if (err) {
+        // Handle error
+    } else {
+        // Use the users
+    }
+});
+
+// Using Promises with Mongoose
+newUser.save()
+    .then(doc => {
+        console.log('Document saved:', doc);
+    })
+    .catch(err => {
+        console.error(err);
+    });
+
+// Virtual Properties
+userSchema.virtual('fullName').get(function () {
+    return this.firstName + ' ' + this.lastName;
+});
+
+// Indexing
+userSchema.index({name: 1});
+
+// Subdocuments
+const addressSchema = new Schema({
+    street: String,
+    city: String
+});
+
+userSchema.add({address: addressSchema});
+
+// Query Helpers
+userSchema.query.byName = function(name) {
+    return this.find({ name: new RegExp(name, 'i') });
+};
+
+User.find().byName('john').exec((err, users) => {
+    console.log(users);
+});
+
+// Aggregation
+User.aggregate([
+    { $group: { _id: '$city', total: { $sum: 1
