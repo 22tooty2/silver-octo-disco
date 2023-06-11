@@ -1,0 +1,93 @@
+#include <vector>
+#include <iostream>
+#include <type_traits>
+
+// Basic Function Template
+template <typename T>
+T myFunction(T a, T b) {
+    // code
+}
+
+// Basic Class Template
+template <class T>
+class MyClass {
+public:
+    T member;
+    // code
+};
+
+// Multiple Template Parameters
+template <typename T, typename U>
+class MyClassWithMultipleTypes {
+    T member1;
+    U member2;
+};
+
+// Template Specialization
+template <>
+class MyClass<int> {
+    // specialized implementation for int
+};
+
+// Variadic Templates
+template <typename... Ts>
+void functionWithVariadicTemplates(Ts... args) {
+    // code
+}
+
+// Template Alias
+template <typename T>
+using Vec = std::vector<T>;
+
+// Non-type Template Parameters
+template <typename T, int size>
+class ArrayWithSize {
+    T data[size];
+};
+
+// Default Template Arguments
+template <typename T = int>
+class ClassWithDefaults {
+    // code
+};
+
+// Member Function Templates
+class ClassWithMemberTemplates {
+public:
+    template <typename T>
+    void memberFunction(T arg) {
+        // code
+    }
+};
+
+// Template Template Parameters
+template <template <typename> class Container, typename T>
+class ClassWithTemplateTemplates {
+    Container<T> c;
+};
+
+// Using decltype for Template Type Deduction
+template <typename T, typename U>
+auto addWithDecltype(T t, U u) -> decltype(t + u) {
+    return t + u;
+}
+
+// SFINAE (Substitution Failure Is Not An Error)
+template <typename T>
+auto printIfCan(T t) -> decltype(std::cout << t, void()) {
+    std::cout << t;
+}
+
+// Concepts (since C++20)
+template <typename T>
+concept IsIntegral = std::is_integral<T>::value;
+
+template <IsIntegral T>
+T addForIntegrals(T a, T b) {
+    return a + b;
+}
+
+int main() {
+    // You can test out the templates here
+    return 0;
+}
