@@ -1,0 +1,56 @@
+#include <iostream>
+#include <thread>
+#include <vector>
+#include <queue>
+#include <mutex>
+#include <condition_variable>
+
+std::mutex mtx;
+std::queue<int> resultsQueue;
+std::condition_variable cv;
+bool allDone = false;
+
+void workerFunction(int id) {
+    std::this_thread::sleep_for(std::chrono::seconds(1)); // simulate work
+    std::lock_guard<std::mutex> lock(mtx);
+    resultsQueue.push(id * id); // push square of id into queue
+}
+
+int main() {
+    const int numThreads = 5;
+    std::vector<std::thread> threads;
+
+    // Spawn threads
+    for (int i = 0; i < numThreads; ++i) {
+        threads.push_back(std::thread(workerFunction, i));
+    }
+
+    // Join threads
+    for (auto& t : threads) {
+        t.join();
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(mtx);
+        allDone = true;
+    }
+    cv.notify_all();
+
+    // Process results in the main thread
+    while (true) {
+        std::unique_lock<std::mutex> lock(mtx);
+
+        cv.wait(lock, [] { return !resultsQueue.empty() || allDone; });
+
+        if (!resultsQueue.empty()) {
+            std::cout << "Result from thread: " << resultsQueue.front() << std::endl;
+            resultsQueue.pop();
+        } else if (allDone) {
+            break;
+        }
+    }
+
+    std::cout << "All tasks are complete." << std::endl;
+
+    return 0;
+}
